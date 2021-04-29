@@ -123,7 +123,6 @@ void sequentialDivision(bool* matrix) {
 }
 
 void sequentialDivisionWithPrimes(bool* matrix) {
-	cleanMatrix(matrix, false, MAX - MIN);
 
 	int squareRoot = sqrt(MAX);
 	int* primes = new int[squareRoot];
@@ -132,7 +131,6 @@ void sequentialDivisionWithPrimes(bool* matrix) {
 	for (int i = 2; i <= squareRoot; i++)
 	{
 		if (isPrimeExtended(i, primes, prime_counter)) {
-			if (prime_counter < squareRoot) {
 				primes[prime_counter] = i;
 				prime_counter++;
 
@@ -140,25 +138,31 @@ void sequentialDivisionWithPrimes(bool* matrix) {
 				{
 					matrix[i - MIN] = true;
 				}
-			}
+			
+		}
+		else if (i >= MIN) {
+			matrix[i - MIN] = false;
 		}
 	}
-	for (int i = (MIN>squareRoot+1)? MIN:squareRoot+1; i <= MAX; i++) {
+	for (int i = (MIN > squareRoot + 1) ? MIN : squareRoot + 1; i <= MAX; i++) {
 		if (isPrimeExtended(i, primes, prime_counter)) {
 			matrix[i - MIN] = true;
-
 			if (prime_counter < squareRoot) {
 				primes[prime_counter] = i;
 				prime_counter++;
 			}
-
 		}
+		else
+		{
+			matrix[i - MIN] = false;
+		}
+
+
 	}
 
 	delete[] primes;
 
 }
-
 
 
 void sequentialEratostenes(bool* matrix) {
