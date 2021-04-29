@@ -111,10 +111,13 @@ bool isPrimeExtended(int n, int* primes, int prime_counter) {
 
 // Wersje sekwencyjne
 void sequentialDivision(bool* matrix) {
-	cleanMatrix(matrix, false, MAX - MIN);
 	for (int i = MIN; i <= MAX; i++) {
 		if (isPrime(i)) {
 			matrix[i - MIN] = true;
+		}
+		else
+		{
+			matrix[i - MIN] = false;
 		}
 	}
 }
