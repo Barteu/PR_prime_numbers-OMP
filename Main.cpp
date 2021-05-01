@@ -210,14 +210,16 @@ void sequentialEratostenesWithPrimes(bool* matrix) {
 
 // Wersje równoległe
 void parallelDivision(bool* matrix) {
-	cleanMatrix(matrix, false, MAX - MIN);
-	int squareRoot = sqrt(MAX);
 #pragma omp parallel
 	{
 #pragma omp for
 		for (int i = MIN; i <= MAX; i++) {
 			if (isPrime(i)) {
 				matrix[i - MIN] = true;
+			}
+			else
+			{
+				matrix[i-MIN] = true;
 			}
 		}
 	}
