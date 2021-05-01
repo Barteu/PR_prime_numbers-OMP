@@ -280,31 +280,40 @@ void parallelDivisionLivePrimes(bool* matrix) {
 
 void parallelDivisionWithPrimes(bool* matrix) {
 
-	cleanMatrix(matrix, false, MAX - MIN);
+	//cleanMatrix(matrix, false, MAX - MIN);
 	int squareRoot = sqrt(MAX);
 
 	int* primes = new int[int(squareRoot / 2) + 10];
 	int prime_counter = 0;
 
 	bool* matrixUnderMin = new bool[MIN];
-	cleanMatrix(matrixUnderMin, false, MIN - 1);
+	//cleanMatrix(matrixUnderMin, false, MIN - 1);
 
 
 #pragma omp parallel
 	{
-		
 
 #pragma omp for 
 		for (int i = 2; i <= squareRoot; i++) {
 
 			if (isPrime(i)) {
-				
+
 				if (i < MIN) {
 					matrixUnderMin[i] = true;
 				}
 				else {
 					matrix[i - MIN] = true;
 				}
+			}
+			else
+			{
+				if (i < MIN) {
+					matrixUnderMin[i] = false;
+				}
+				else {
+					matrix[i - MIN] = false;
+				}
+
 			}
 		}
 
@@ -332,19 +341,20 @@ void parallelDivisionWithPrimes(bool* matrix) {
 		}
 
 #pragma omp for
-		for (int i = (squareRoot + 1>MIN)? squareRoot + 1 : MIN; i <= MAX; i++) {
-			if (isPrimeExtended(i, primes, prime_counter)) {  
+		for (int i = (squareRoot + 1 > MIN) ? squareRoot + 1 : MIN; i <= MAX; i++) {
+			if (isPrimeExtended(i, primes, prime_counter)) {
 				matrix[i - MIN] = true;
 			}
+			else {
+				matrix[i - MIN] = false;
+			}
 		}
-
 
 	}
 
 	delete[] primes;
 	delete[] matrixUnderMin;
 }
-
 
 /*void parallelEratostenesFunctional(bool* matrix) {
 	cleanMatrix(matrix, true);
