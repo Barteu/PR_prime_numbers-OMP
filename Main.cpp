@@ -346,7 +346,7 @@ void parallelDivisionWithPrimes(bool* matrix) {
 	{
 		int threadId = omp_get_thread_num();
 
-#pragma omp for 
+#pragma omp for schedule(dynamic,squareRoot/1000)
 		for (int i = 2; i <= squareRoot; i++) {
 
 			if (isPrime(i)) {
@@ -359,7 +359,7 @@ void parallelDivisionWithPrimes(bool* matrix) {
 			}
 		}
 
-#pragma omp single
+#pragma omp master
 		{
 			for (int i = 2; i <= squareRoot; i++)
 			{
@@ -382,7 +382,7 @@ void parallelDivisionWithPrimes(bool* matrix) {
 			}
 		}
 
-#pragma omp for
+#pragma omp for schedule(dynamic,(MAX-MIN)/1000)
 		for (int i = (squareRoot + 1 > MIN) ? squareRoot + 1 : MIN; i <= MAX; i++) {
 			if (isPrimeExtended(i, primes, prime_counter)) {
 				matrix[i - MIN] = true;
