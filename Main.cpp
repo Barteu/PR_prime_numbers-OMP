@@ -528,6 +528,7 @@ for(int x = MIN; x < MAX; x+= range){
 }
 
 // FIN ver
+/*
 void parallelEratostenesFunctionalWithPrimes(bool* matrix) {
 	printf("PAR ERA FUN PRIM\n");
 	cleanMatrix(matrix, true, MAX - MIN);
@@ -578,6 +579,7 @@ void parallelEratostenesFunctionalWithPrimes(bool* matrix) {
 	delete[] matrixSqrt;
 	delete[] primes;
 }
+*/
 // STARA WERSJA, DZIALA, ALE NIE KORZYSTA Z PRAGMA OMP FOR
 /*void parallelEratostenesDomain(bool* matrix) {
 	cleanMatrix(matrix, true);
@@ -607,7 +609,7 @@ void parallelEratostenesDomain(bool* matrix) {
 	int squareRoot = sqrt(MAX);
 	int numThreads = THREAD_NUM;
 	printf("Num threads: %d\n", numThreads);
-	int range = 64000;//squareRoot / (numThreads * DOMAIN_MULTIPLIER);
+	int range = 1024;//squareRoot / (numThreads * DOMAIN_MULTIPLIER);
 	printf("Range sqrt: %d\n", range);
 	// W celu optymalizacji algorytmu
 	bool* matrixSqrt = new bool[squareRoot];
@@ -616,9 +618,18 @@ void parallelEratostenesDomain(bool* matrix) {
 	}
 	int secondSquareRoot = sqrt(squareRoot);
 	// Dla 2 ... sqrt(MAX)
+
+	//  range2
+	//range = 32768;// (MAX - MIN) / (numThreads * DOMAIN_MULTIPLIER); // range = 4000 - 64000 gwarantuje dobry MEMORY BOUND 
+	
+	int range2 = 32768;
+	// W sumie dla wiekszych instacji wystarczy dosc mocno zwiekszac DOMAIN_MULTIPLIER, tak zeby (MAX-MIN)/DOMAIN_MULTIPLIER = ~64000
+	printf("Range2 (MAX-MIN): %d\n", range2);
+	int chunk2_size =  ceil(((MAX - MIN) / range2) / 100.0); 
+
 #pragma omp parallel
 	{
-#pragma omp for
+#pragma omp for 
 		for (int i = 2; i <= squareRoot; i += range)
 		{
 			int upperBound = (i + range > squareRoot) ? squareRoot : i + range;
@@ -626,10 +637,10 @@ void parallelEratostenesDomain(bool* matrix) {
 			{
 				if (matrixSqrt[j - 2] == true) {
 					int k = j * j;
-					if (k < i && (j * ceil(float(i) / j))>j* j) {
+					if (k < i && (j * ceil(float(i) / j))>j * j) {
 						k = j * ceil(float(i) / j);
 					}
-					for (k ; k <= upperBound; k += j) {
+					for (k; k <= upperBound; k += j) {
 						matrixSqrt[k - 2] = false;
 						if (k >= MIN) {
 							matrix[k - MIN] = false;
@@ -638,23 +649,16 @@ void parallelEratostenesDomain(bool* matrix) {
 				}
 			}
 		}
-#pragma omp single 
-		{
-			// Zmiana range
-			range = 64000;// (MAX - MIN) / (numThreads * DOMAIN_MULTIPLIER); // range = 4000 - 64000 gwarantuje dobry MEMORY BOUND 
-			// W sumie dla wiekszych instacji wystarczy dosc mocno zwiekszac DOMAIN_MULTIPLIER, tak zeby (MAX-MIN)/DOMAIN_MULTIPLIER = ~64000
-			printf("Range MAX-MIN: %d\n", range);
-		}
 		// Dla MIN ... MAX
-#pragma omp for
-		for (int i = MIN; i <= MAX; i += range)
+#pragma omp for schedule(dynamic,chunk2_size)
+		for (int i = MIN; i <= MAX; i += range2)
 		{
-			int upperBound = (i + range > MAX) ? MAX : i + range;
+			int upperBound = (i + range2 > MAX) ? MAX : i + range2;
 			for (int j = 2; j <= squareRoot; j++)
 			{
 				if (matrixSqrt[j - 2] == true) {
 					int k = j * j;
-					if (k < i && (j * ceil(float(i) / j))>j* j) {
+					if (k < i && (j * ceil(float(i) / j))>j * j) {
 						k = j * ceil(float(i) / j);
 					}
 					for (k; k <= upperBound; k += j) {
