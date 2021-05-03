@@ -12,17 +12,17 @@
 
 // MIN >= 2
 const int MIN = 2;
-const int MAX = 3*100000000;
+const int MAX = 3 * 100000000;
 
 // W podejsciu domenowym watki dziela prace na THREAD_NUM * DOMAIN_MULTIPLIER przedzialow
 const int DOMAIN_MULTIPLIER = 1;
 
-#define THREAD_NUM 4 
+#define THREAD_NUM 4
 
 
 const bool printPrimes = false;
 
-enum version { SEQ_DIV, SEQ_DIV_PRIM, SEQ_ERA, SEQ_ERA_OPT, SEQ_ERA_PRIM, PAR_DIV, PAR_DIV_PRIM, PAR_ERA_FUN, PAR_ERA_FUN_PRIM, PAR_ERA_DOM, PAR_ERA_DOM_PRIM, PAR_DIV_2, PAR_ERA_FUN_LOC };
+enum version { SEQ_DIV, SEQ_DIV_PRIM, SEQ_ERA, SEQ_ERA_OPT, SEQ_ERA_PRIM, PAR_DIV, PAR_DIV_PRIM, PAR_ERA_FUN, PAR_ERA_FUN_PRIM, PAR_ERA_DOM, PAR_ERA_DOM_WORSER, PAR_DIV_2, PAR_ERA_FUN_LOC };
 
 // prototypy funkcji pomocniczych
 void showResult(bool* matrix);
@@ -38,11 +38,11 @@ void parallelEratostenesFunctional(bool* matrix);
 void parallelEratostenesFunctionalLocal(bool* matrix);
 void parallelEratostenesFunctionalWithPrimes(bool* matrix);
 void parallelEratostenesDomain(bool* matrix);
-void parallelEratostenesDomainWithPrimes(bool* matrix);
+void parallelEratostenesDomainWorser(bool* matrix);
 void parallelDivisionLivePrimes(bool* matrix);
 
 void (*funcPtr[])(bool*) = { sequentialDivision, sequentialDivisionWithPrimes, sequentialEratostenes, sequentialEratostenesOpt, sequentialEratostenesWithPrimes, parallelDivision, parallelDivisionWithPrimes, parallelEratostenesFunctional,
-							  parallelEratostenesFunctionalWithPrimes, parallelEratostenesDomain, parallelEratostenesDomainWithPrimes, parallelDivisionLivePrimes, parallelEratostenesFunctionalLocal};
+							  parallelEratostenesFunctionalWithPrimes, parallelEratostenesDomain, parallelEratostenesDomainWorser, parallelDivisionLivePrimes, parallelEratostenesFunctionalLocal};
 
 
 //glowne funkcje
@@ -200,6 +200,7 @@ void sequentialEratostenesOpt(bool* matrix) {
 	}
 	// Dla MIN ... MAX
 	for (int counter = 2; counter < squareRoot; counter++) {
+		//printf("%d\n", counter);
 		if (matrixSqrt[counter - 2] == false) {
 			continue;
 		}
@@ -503,7 +504,7 @@ void parallelEratostenesFunctionalLocal(bool* matrix) {
 		// Dla MIN ... MAX
 for(int x = MIN; x < MAX; x+= range){
 	int upperBound = (x + range> MAX) ? MAX : x + range;
-#pragma omp for schedule(dynamic,MAX/2000)
+#pragma omp for //schedule(dynamic,MAX/2000)
 		for (int counter = 2; counter < squareRoot; counter++) {
 			if (matrixSqrt[counter - 2] == false) {
 				continue;
@@ -661,8 +662,8 @@ void parallelEratostenesDomain(bool* matrix) {
 	delete[] matrixSqrt;
 }
 
-void parallelEratostenesDomainWithPrimes(bool* matrix) {
-	printf("PAR ERA FUN\n");
+void parallelEratostenesDomainWorser(bool* matrix) {
+	printf("PAR ERA DOM WORSER\n");
 	cleanMatrix(matrix, true, MAX - MIN);
 	int squareRoot = sqrt(MAX);
 	int numThreads = THREAD_NUM;
@@ -670,8 +671,6 @@ void parallelEratostenesDomainWithPrimes(bool* matrix) {
 	for (int i = 0; i < squareRoot; i++) {
 		matrixSqrt[i] = true;
 	}
-	int* primes = new int[squareRoot];
-	int primeCounter = 0;
 	int secondSquareRoot = sqrt(squareRoot);
 	int range = squareRoot / (numThreads * DOMAIN_MULTIPLIER);
 #pragma omp parallel
@@ -684,11 +683,7 @@ void parallelEratostenesDomainWithPrimes(bool* matrix) {
 			for (int j = 2; j <= secondSquareRoot; j++)
 			{
 				if (matrixSqrt[j - 2] == true) {
-					int k = j * j;
-					if (k < i && (j * ceil(float(i) / j))>j* j) {
-						k = j * ceil(float(i) / j);
-					}
-					for (k; k <= upperBound; k += j) {
+					for (int k = j * j; k <= upperBound; k += j) {
 						matrixSqrt[k - 2] = false;
 						if (k >= MIN) {
 							matrix[k - MIN] = false;
@@ -699,12 +694,6 @@ void parallelEratostenesDomainWithPrimes(bool* matrix) {
 		}
 #pragma omp single
 		{
-			for (int i = 2; i <= squareRoot; i++) {
-				if (matrixSqrt[i - 2] == true) {
-					primes[primeCounter] = i;
-					primeCounter++;
-				}
-			}
 			// watki dziela sie pozostala praca na przedziale sqrt(MAX) .. MAX
 			range = (MAX - MIN) / (numThreads * DOMAIN_MULTIPLIER);
 		}
@@ -712,20 +701,15 @@ void parallelEratostenesDomainWithPrimes(bool* matrix) {
 		for (int i = MIN; i <= MAX; i += range)
 		{
 			int upperBound = (i + range > MAX) ? MAX : i + range;
-			for (int j = 0; j < primeCounter; j++)
+			for (int j = 2; j < squareRoot; j++)
 			{
-				int k = primes[j] * primes[j];
-				if (k < i && (primes[j] * ceil(float(i) / primes[j]))>primes[j] * primes[j]) {
-					k = primes[j] * ceil(float(i) / primes[j]);
-				}
-				for (k; k <= upperBound; k += primes[j]) {
+				for (int k = j * j; k <= upperBound; k += j) {
 					//printf("k- min: %d\n", k - MIN);
 					matrix[k - MIN] = false;
 				}
 			}
 		}
 	}
-	delete[] primes;
 	delete[] matrixSqrt;
 }
 
@@ -745,11 +729,11 @@ int main(int argc, char* argv[])
 
 	//--- POCZĄTEK PRZETWARZANIA ---
 
-	//{ SEQ_DIV, SEQ_DIV_PRIM, SEQ_ERA, SEQ_ERA_PRIM, PAR_DIV, 
+	//{ SEQ_DIV, SEQ_DIV_PRIM, SEQ_ERA, SEQ_ERA_OPT, SEQ_ERA_PRIM, PAR_DIV, 
 	// PAR_DIV_PRIM, PAR_ERA_FUN, PAR_ERA_FUN_PRIM, PAR_ERA_DOM, 
 	// PAR_ERA_DOM_PRIM, PAR_DIV_2 }
-	funcPtr[SEQ_ERA_OPT](matrix);
-
+	funcPtr[PAR_ERA_DOM_WORSER](matrix);
+	//cleanMatrix(matrix, true, MAX - MIN);
 	//--- KONIEC PRZETWARZANIA ---
 
 	stop = omp_get_wtime();
