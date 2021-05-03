@@ -341,12 +341,14 @@ void parallelDivisionWithPrimes(bool* matrix) {
 	bool* matrixUnderMin = new bool[MIN];
 	cleanMatrix(matrixUnderMin, false, MIN - 1);
 
-
+	int chunk_size = ceil(squareRoot / 1000.0);
+	int chunk2_size = ceil((MAX - MIN) / 1000.0);
+	
 #pragma omp parallel
 	{
 		int threadId = omp_get_thread_num();
 
-#pragma omp for schedule(dynamic,squareRoot/1000)
+#pragma omp for schedule(dynamic,chunk_size)
 		for (int i = 2; i <= squareRoot; i++) {
 
 			if (isPrime(i)) {
@@ -382,7 +384,7 @@ void parallelDivisionWithPrimes(bool* matrix) {
 			}
 		}
 
-#pragma omp for schedule(dynamic,(MAX-MIN)/1000)
+#pragma omp for schedule(dynamic,chunk2_size)
 		for (int i = (squareRoot + 1 > MIN) ? squareRoot + 1 : MIN; i <= MAX; i++) {
 			if (isPrimeExtended(i, primes, prime_counter)) {
 				matrix[i - MIN] = true;
