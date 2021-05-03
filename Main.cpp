@@ -14,6 +14,9 @@
 const int MIN = 30;
 const int MAX = 100;//3 * 100000000;
 
+// 175000000
+// 350000000
+
 // W podejsciu domenowym watki dziela prace na THREAD_NUM * DOMAIN_MULTIPLIER przedzialow
 const int DOMAIN_MULTIPLIER = 2;
 
