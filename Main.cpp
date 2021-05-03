@@ -11,16 +11,16 @@
 #include <ctime>
 
 // MIN >= 2
-const int MIN = 2;
-const int MAX = 3 * 100000000;
+const int MIN = 30;
+const int MAX = 100;//3 * 100000000;
 
 // W podejsciu domenowym watki dziela prace na THREAD_NUM * DOMAIN_MULTIPLIER przedzialow
-const int DOMAIN_MULTIPLIER = 1;
+const int DOMAIN_MULTIPLIER = 2;
 
 #define THREAD_NUM 4
 
 
-const bool printPrimes = false;
+const bool printPrimes = true;
 
 enum version { SEQ_DIV, SEQ_DIV_PRIM, SEQ_ERA, SEQ_ERA_OPT, SEQ_ERA_PRIM, PAR_DIV, PAR_DIV_PRIM, PAR_ERA_FUN, PAR_ERA_FUN_PRIM, PAR_ERA_DOM, PAR_ERA_DOM_WORSER, PAR_DIV_2, PAR_ERA_FUN_LOC };
 
@@ -433,7 +433,7 @@ void parallelEratostenesFunctional(bool* matrix) {
 	// Dla 2 ... sqrt(MAX)
 #pragma omp parallel
 	{
-#pragma omp for 
+#pragma omp for //schedule(dynamic)
 		for (int i = 2; i < secondSquareRoot; i++) {
 			if (matrixSqrt[i - 2] == false) {
 				continue;
@@ -447,7 +447,7 @@ void parallelEratostenesFunctional(bool* matrix) {
 			}
 		}
 		// Dla MIN ... MAX
-#pragma omp for 
+#pragma omp for //schedule(dynamic)
 		for (int counter = 2; counter < squareRoot; counter++) {
 			if (matrixSqrt[counter - 2] == false) {
 				continue;
@@ -705,6 +705,7 @@ void parallelEratostenesDomainWorser(bool* matrix) {
 			{
 				for (int k = j * j; k <= upperBound; k += j) {
 					//printf("k- min: %d\n", k - MIN);
+					if(k >= MIN)
 					matrix[k - MIN] = false;
 				}
 			}
