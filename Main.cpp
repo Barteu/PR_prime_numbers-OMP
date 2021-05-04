@@ -20,7 +20,7 @@ const int DOMAIN_MULTIPLIER = 2;
 
 //##########################################################
 
-enum version { SEQ_DIV, SEQ_DIV_PRIM, SEQ_ERA, SEQ_ERA_OPT, PAR_DIV, PAR_DIV_PRIM, PAR_ERA_FUN, PAR_ERA_DOM, PAR_ERA_FUN_LOC };
+enum version { SEQ_DIV, SEQ_DIV_PRIM, SEQ_ERA_OPT, PAR_DIV, PAR_DIV_PRIM, PAR_ERA_FUN, PAR_ERA_DOM, PAR_ERA_FUN_LOC };
 
 // prototypy funkcji pomocniczych
 void showResult(bool* matrix);
@@ -38,7 +38,7 @@ void parallelEratostenesFunctional(bool* matrix);
 void parallelEratostenesFunctionalLocal(bool* matrix);
 void parallelEratostenesDomain(bool* matrix);
 
-void (*funcPtr[])(bool*) = { sequentialDivision, sequentialDivisionWithPrimes, sequentialEratostenes, sequentialEratostenesOpt, parallelDivision, parallelDivisionWithPrimes, parallelEratostenesFunctional,
+void (*funcPtr[])(bool*) = { sequentialDivision, sequentialDivisionWithPrimes, sequentialEratostenesOpt, parallelDivision, parallelDivisionWithPrimes, parallelEratostenesFunctional,
 							   parallelEratostenesDomain, parallelEratostenesFunctionalLocal};
 
 
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 
 	//-------- POCZĄTEK PRZETWARZANIA --------- 
 
-	//SEQ_DIV, SEQ_DIV_PRIM, SEQ_ERA, SEQ_ERA_OPT, PAR_DIV, PAR_DIV_PRIM, PAR_ERA_FUN, PAR_ERA_DOM, PAR_ERA_FUN_LOC
+	//SEQ_DIV, SEQ_DIV_PRIM, SEQ_ERA_OPT, PAR_DIV, PAR_DIV_PRIM, PAR_ERA_FUN, PAR_ERA_DOM, PAR_ERA_FUN_LOC
 	funcPtr[SEQ_ERA_OPT](matrix);    // <<------ w tym miejscu prosze wybrac uzywany algorytm
 	
 	//--------- KONIEC PRZETWARZANIA ----------
