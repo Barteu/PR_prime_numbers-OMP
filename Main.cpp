@@ -482,7 +482,7 @@ void parallelEratostenesFunctionalLocal(bool* matrix) {
 	{
 		for (int x = 2; x < squareRoot; x += range) {
 			int upperBound = (x + range > squareRoot) ? squareRoot : x + range;
-#pragma omp for schedule(dynamic,chunk_size)
+#pragma omp for schedule(dynamic)
 			for (int i = 2; i < secondSquareRoot; i++) {
 				if (matrixSqrt[i - 2] == false) {
 					continue;
