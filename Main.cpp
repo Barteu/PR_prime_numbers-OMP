@@ -39,7 +39,7 @@ void parallelEratostenesFunctionalLocal(bool* matrix);
 void parallelEratostenesDomain(bool* matrix);
 
 void (*funcPtr[])(bool*) = { sequentialDivision, sequentialDivisionWithPrimes, sequentialEratostenes, sequentialEratostenesOpt, parallelDivision, parallelDivisionWithPrimes, parallelEratostenesFunctional,
-							  , parallelEratostenesDomain, parallelEratostenesFunctionalLocal};
+							   parallelEratostenesDomain, parallelEratostenesFunctionalLocal};
 
 
 int main(int argc, char* argv[])
