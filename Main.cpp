@@ -503,7 +503,7 @@ void parallelEratostenesFunctionalLocal(bool* matrix) {
 
 		// Dla MIN ... MAX
 for(int x = MIN; x < MAX; x+= range2){
-	int upperBound = (x + range> MAX) ? MAX : x + range2;
+	int upperBound = (x + range2> MAX) ? MAX : x + range2;
 
 #pragma omp for schedule(dynamic,chunk_size)
 		for (int counter = 2; counter < squareRoot; counter++) {
